@@ -124,7 +124,12 @@ int midi_c5note = 60;
 
 #if VOIDSHINE
 // Axis 49 mapped to Chromatic Button Accordion B-griff (Bayan)
+// First note (top left in normal orientation) outputs
+// note number 1 in "selfless mode", and proceeds by one
+// downward, then wrapping to next column, all the way
+// up to note number 98 in lower right corner.
 uint8_t midi_input_note_map[128] = {
+0,
  48, 49, 50, 51, 52, 53, 54,
    51, 52, 53, 54, 55, 56, 57,
  53, 54, 55, 56, 57, 58, 59,
@@ -139,10 +144,10 @@ uint8_t midi_input_note_map[128] = {
    76, 77, 78, 79, 80, 81, 82,
      79, 80, 81, 82, 83, 84, 85,
    81, 82, 83, 84, 85, 86, 87,
-// 98 keys above, leaving 30 unampped:
+// 1 blank + 98 keys above, leaving 29 unampped:
 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0,
 };
 #else
 // Identity
