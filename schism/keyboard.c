@@ -33,10 +33,17 @@
 
 /* --------------------------------------------------------------------- */
 
+#if VOIDSHINE
+static const char *note_names_up[12] = {
+	"Ta", "Ti", "Tu", "Na", "Ni", "Nu",
+	"Ka", "Ki", "Ku", "Sa", "Si", "Su",
+};
+#else
 static const char *note_names_up[12] = {
 	"C-", "C#", "D-", "D#", "E-", "F-",
 	"F#", "G-", "G#", "A-", "A#", "B-"
 };
+#endif
 
 static const char note_names_short_up[12] = "cCdDefFgGaAb";
 
@@ -499,12 +506,7 @@ int kbd_char_to_hex(struct key_event *k)
  *         but it's in the player. */
 inline int kbd_get_note(struct key_event *k)
 {
-	return kbd_get_note_chromatic(k);
-	//return kbd_get_note_classic(k);
-}
-
-inline int kbd_get_note_chromatic(struct key_event *k)
-{
+#if VOIDSHINE
 	int note;
 
 	if (!NO_CAM_MODS(k->mod)) return -1;
@@ -567,10 +569,7 @@ inline int kbd_get_note_chromatic(struct key_event *k)
 	};
 	note += (12 * current_octave);
 	return CLAMP(note, 1, 120);
-}
-
-inline int kbd_get_note_classic(struct key_event *k)
-{
+#else
 	int note;
 
 	if (!NO_CAM_MODS(k->mod)) return -1;
@@ -632,6 +631,7 @@ inline int kbd_get_note_classic(struct key_event *k)
 	};
 	note += (12 * current_octave);
 	return CLAMP(note, 1, 120);
+#endif
 }
 
 int kbd_get_alnum(struct key_event *k)

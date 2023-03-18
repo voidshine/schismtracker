@@ -29,6 +29,11 @@
 # include <config.h>
 #endif
 
+// Define this to build with voidshine hacks:
+//   - Chromatic keyboard note mapping.
+//   - Note name system (TNKS)x(aiu) = Ta Ti Tu Na Ni Nu Ka Ki Ku Sa Si Su
+#define VOIDSHINE 1
+
 /* Some stuff was conditionally included only for files that need it, but really it's not like defining
 bswapLE32 or including sys/time.h adversely affects compilation time. This isn't some xboxhueg project
 that takes hours to build, these are little silly overoptimizations, and it's just troublesome to try
