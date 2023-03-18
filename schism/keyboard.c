@@ -499,6 +499,78 @@ int kbd_char_to_hex(struct key_event *k)
  *         but it's in the player. */
 inline int kbd_get_note(struct key_event *k)
 {
+	return kbd_get_note_chromatic(k);
+	//return kbd_get_note_classic(k);
+}
+
+inline int kbd_get_note_chromatic(struct key_event *k)
+{
+	int note;
+
+	if (!NO_CAM_MODS(k->mod)) return -1;
+
+	if (k->orig_sym.sym == SDLK_KP_PERIOD && k->sym.sym == SDLK_PERIOD) {
+		/* lots of systems map an outside scancode for these;
+		 * we may need to simply ignore scancodes > 256
+		 * but i want a narrow change for this for now
+		 * until it is certain we need more...
+		 */
+		return 0;
+	}
+
+	if (k->sym.sym == SDLK_KP_1 || k->sym.sym == SDLK_KP_PERIOD)
+		if (!(k->mod & KMOD_NUM)) return -1;
+
+	switch (k->scancode) {
+	case SDL_SCANCODE_GRAVE:
+		if (k->mod & KMOD_SHIFT) return NOTE_FADE;
+	case SDL_SCANCODE_NONUSHASH: /* for delt */
+	case SDL_SCANCODE_KP_HASH:
+		return NOTE_OFF;
+	case SDL_SCANCODE_1:
+		return NOTE_CUT;
+	case SDL_SCANCODE_PERIOD:
+		return 0; /* clear */
+
+	case SDL_SCANCODE_Q: note = 1; break;
+	case SDL_SCANCODE_A: note = 2; break;
+	case SDL_SCANCODE_Z: note = 3; break;
+	case SDL_SCANCODE_W: note = 4; break;
+	case SDL_SCANCODE_S: note = 5; break;
+	case SDL_SCANCODE_X: note = 6; break;
+	case SDL_SCANCODE_E: note = 7; break;
+	case SDL_SCANCODE_D: note = 8; break;
+	case SDL_SCANCODE_C: note = 9; break;
+	case SDL_SCANCODE_R: note = 10; break;
+	case SDL_SCANCODE_F: note = 11; break;
+	case SDL_SCANCODE_V: note = 12; break;
+
+	case SDL_SCANCODE_T: note = 13; break;
+	case SDL_SCANCODE_G: note = 14; break;
+	case SDL_SCANCODE_B: note = 15; break;
+	case SDL_SCANCODE_Y: note = 16; break;
+	case SDL_SCANCODE_H: note = 17; break;
+	case SDL_SCANCODE_N: note = 18; break;
+	case SDL_SCANCODE_U: note = 19; break;
+	case SDL_SCANCODE_J: note = 20; break;
+	case SDL_SCANCODE_M: note = 21; break;
+	case SDL_SCANCODE_I: note = 22; break;
+	case SDL_SCANCODE_K: note = 23; break;
+	case SDL_SCANCODE_COMMA: note = 24; break;
+	case SDL_SCANCODE_O: note = 25; break;
+	case SDL_SCANCODE_L: note = 26; break;
+	//case SDL_SCANCODE_O: note = 27; break;
+	//case SDL_SCANCODE_0: note = 28; break;
+	//case SDL_SCANCODE_P: note = 29; break;
+
+	default: return -1;
+	};
+	note += (12 * current_octave);
+	return CLAMP(note, 1, 120);
+}
+
+inline int kbd_get_note_classic(struct key_event *k)
+{
 	int note;
 
 	if (!NO_CAM_MODS(k->mod)) return -1;
