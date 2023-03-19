@@ -534,6 +534,7 @@ inline int kbd_get_note(struct key_event *k)
 	case SDL_SCANCODE_PERIOD:
 		return 0; /* clear */
 
+	// Two full chromatic octaves without number keys, key block from Q to comma.
 	case SDL_SCANCODE_Q: note = 1; break;
 	case SDL_SCANCODE_A: note = 2; break;
 	case SDL_SCANCODE_Z: note = 3; break;
@@ -559,11 +560,6 @@ inline int kbd_get_note(struct key_event *k)
 	case SDL_SCANCODE_I: note = 22; break;
 	case SDL_SCANCODE_K: note = 23; break;
 	case SDL_SCANCODE_COMMA: note = 24; break;
-	case SDL_SCANCODE_O: note = 25; break;
-	case SDL_SCANCODE_L: note = 26; break;
-	//case SDL_SCANCODE_O: note = 27; break;
-	//case SDL_SCANCODE_0: note = 28; break;
-	//case SDL_SCANCODE_P: note = 29; break;
 
 	default: return -1;
 	};
