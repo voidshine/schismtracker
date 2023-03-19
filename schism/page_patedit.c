@@ -2354,10 +2354,15 @@ static void advance_cursor(int next_row, int multichannel)
 		total_rows = song_get_rows_in_pattern(current_pattern);
 
 		if (skip_value) {
+#if VOIDSHINE
+			current_row = (current_row + skip_value) % total_rows;
+			pattern_editor_reposition();
+#else
 			if (current_row + skip_value < total_rows) {
 				current_row += skip_value;
 				pattern_editor_reposition();
 			}
+#endif
 		} else {
 			if (current_channel < 64) {
 				current_channel++;
@@ -4154,22 +4159,30 @@ static int pattern_editor_handle_key(struct key_event * k)
 	case SDLK_UP:
 		if (k->state == KEY_RELEASE)
 			return 0;
+#if VOIDSHINE
+		current_row -= (skip_value ?: 1);
+#else
 		if (skip_value) {
 			if (current_row - skip_value >= 0)
 				current_row -= skip_value;
 		} else {
 			current_row--;
 		}
+#endif
 		return -1;
 	case SDLK_DOWN:
 		if (k->state == KEY_RELEASE)
 			return 0;
+#if VOIDSHINE
+		current_row += (skip_value ?: 1);
+#else
 		if (skip_value) {
 			if (current_row + skip_value < total_rows)
 				current_row += skip_value;
 		} else {
 			current_row++;
 		}
+#endif
 		return -1;
 	case SDLK_LEFT:
 		if (k->state == KEY_RELEASE)
@@ -4437,7 +4450,11 @@ static int pattern_editor_handle_key_cb(struct key_event * k)
 	if (ret != -1)
 		return ret;
 
+#if VOIDSHINE
+	current_row = (current_row + total_rows) % total_rows;
+#else
 	current_row = CLAMP(current_row, 0, total_rows - 1);
+#endif
 	if (current_position > 8) {
 		if (current_channel < 64) {
 			current_position = 0;
