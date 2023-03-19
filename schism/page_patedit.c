@@ -2329,8 +2329,8 @@ static void pattern_editor_reposition(void)
 	if (centralise_cursor) {
 		if (current_row <= 16)
 			top_display_row = 0;
-		else if (current_row + 15 > total_rows)
-			top_display_row = total_rows - 31;
+		else if (current_row + 16 > total_rows)
+			top_display_row = total_rows - 32;
 		else
 			top_display_row = current_row - 16;
 	} else {
@@ -2339,8 +2339,8 @@ static void pattern_editor_reposition(void)
 			top_display_row = current_row;
 		else if (current_row > top_display_row + 31)
 			top_display_row = current_row - 31;
-		if (top_display_row + 31 > total_rows)
-			top_display_row = total_rows - 31;
+		if (top_display_row + 32 >= total_rows)
+			top_display_row = total_rows - 32;
 	}
 	if (top_display_row < 0)
 		top_display_row = 0;
@@ -2354,7 +2354,7 @@ static void advance_cursor(int next_row, int multichannel)
 		total_rows = song_get_rows_in_pattern(current_pattern);
 
 		if (skip_value) {
-			if (current_row + skip_value <= total_rows) {
+			if (current_row + skip_value < total_rows) {
 				current_row += skip_value;
 				pattern_editor_reposition();
 			}
@@ -2363,7 +2363,7 @@ static void advance_cursor(int next_row, int multichannel)
 				current_channel++;
 			} else {
 				current_channel = 1;
-				if (current_row < total_rows)
+				if (current_row + 1 < total_rows)
 					current_row++;
 			}
 			pattern_editor_reposition();
@@ -2381,7 +2381,7 @@ void update_current_row(void)
 	char buf[4];
 
 	draw_text(numtostr(3, current_row, buf), 12, 7, 5, 0);
-	draw_text(numtostr(3, song_get_rows_in_pattern(current_pattern), buf), 16, 7, 5, 0);
+	draw_text(numtostr(3, song_get_rows_in_pattern(current_pattern) - 1, buf), 16, 7, 5, 0);
 }
 
 int get_current_channel(void)
@@ -2403,7 +2403,7 @@ void set_current_row(int row)
 {
 	int total_rows = song_get_rows_in_pattern(current_pattern);
 
-	current_row = CLAMP(row, 0, total_rows);
+	current_row = CLAMP(row, 0, total_rows - 1);
 	pattern_editor_reposition();
 	status.flags |= NEED_UPDATE;
 }
@@ -2450,14 +2450,14 @@ void set_current_pattern(int n)
 	current_pattern = CLAMP(n, 0, 199);
 	total_rows = song_get_rows_in_pattern(current_pattern);
 
-	if (current_row > total_rows)
-		current_row = total_rows;
+	if (current_row >= total_rows)
+		current_row = total_rows - 1;
 
 	if (SELECTION_EXISTS) {
-		if (selection.first_row > total_rows) {
-			selection.first_row = selection.last_row = total_rows;
-		} else if (selection.last_row > total_rows) {
-			selection.last_row = total_rows;
+		if (selection.first_row >= total_rows) {
+			selection.first_row = selection.last_row = total_rows - 1;
+		} else if (selection.last_row >= total_rows) {
+			selection.last_row = total_rows - 1;
 		}
 	}
 
@@ -3170,7 +3170,7 @@ static int pattern_editor_insert(struct key_event *k)
 				/* go to the next row if a note off would overwrite a note
 				 * you (likely) just entered */
 				if (cur_note->note) {
-					if (++current_row >
+					if (++current_row >=
 						song_get_rows_in_pattern(current_pattern)) {
 						return 1;
 					}
@@ -3481,7 +3481,7 @@ static int pattern_editor_handle_alt_key(struct key_event * k)
 		if (k->state == KEY_RELEASE)
 			return 1;
 		if (status.last_keysym.sym == SDLK_d) {
-			if (total_rows - (current_row - 1) > block_double_size)
+			if ((total_rows - 1) - (current_row - 1) > block_double_size)
 				block_double_size <<= 1;
 		} else {
 			// emulate some weird impulse tracker behavior here:
@@ -3492,7 +3492,7 @@ static int pattern_editor_handle_alt_key(struct key_event * k)
 			selection.first_row = current_row;
 		}
 		n = block_double_size + current_row - 1;
-		selection.last_row = MIN(n, total_rows);
+		selection.last_row = MIN(n, total_rows - 1);
 		break;
 	case SDLK_l:
 		if (k->state == KEY_RELEASE)
@@ -3508,7 +3508,7 @@ static int pattern_editor_handle_alt_key(struct key_event * k)
 		} else {
 			selection.first_channel = selection.last_channel = current_channel;
 			selection.first_row = 0;
-			selection.last_row = total_rows;
+			selection.last_row = total_rows - 1;
 		}
 		pattern_selection_system_copyout();
 		break;
@@ -3696,7 +3696,7 @@ static int pattern_editor_handle_alt_key(struct key_event * k)
 	case SDLK_DOWN:
 		if (k->state == KEY_RELEASE)
 			return 1;
-		if (top_display_row + 31 < total_rows) {
+		if (top_display_row + 32 < total_rows) {
 			top_display_row++;
 			if (current_row < top_display_row)
 				current_row = top_display_row;
@@ -3813,7 +3813,7 @@ static int pattern_editor_handle_ctrl_key(struct key_event * k)
 	case SDLK_PAGEDOWN:
 		if (k->state == KEY_RELEASE)
 			return 1;
-		current_row = total_rows;
+		current_row = total_rows - 1;
 		return -1;
 	case SDLK_HOME:
 		if (k->state == KEY_RELEASE)
@@ -4025,8 +4025,8 @@ static int pattern_editor_handle_key(struct key_event * k)
 					return -1;
 				}
 			} else if (k->mouse == MOUSE_SCROLL_DOWN) {
-				if (top_display_row + 31 < total_rows) {
-					top_display_row = MIN(top_display_row + MOUSE_SCROLL_LINES, total_rows);
+				if (top_display_row + 32 < total_rows) {
+					top_display_row = MIN(top_display_row + MOUSE_SCROLL_LINES, total_rows - 1);
 					if (current_row < top_display_row)
 						current_row = top_display_row;
 					return -1;
@@ -4039,8 +4039,7 @@ static int pattern_editor_handle_key(struct key_event * k)
 			return 1;
 
 		basex = 5;
-		if (current_row < 0) current_row = 0;
-		if (current_row >= total_rows) current_row = total_rows;
+		current_row = CLAMP(current_row, 0, total_rows - 1);
 		np = current_position; nc = current_channel; nr = current_row;
 		for (n = top_display_channel, nx = 0; nx <= visible_channels; n++, nx++) {
 			track_view = track_views+track_view_scheme[nx];
@@ -4132,8 +4131,7 @@ static int pattern_editor_handle_key(struct key_event * k)
 			return 1;
 		}
 
-		if (nr >= total_rows) nr = total_rows;
-		if (nr < 0) nr = 0;
+		nr = CLAMP(nr, 0, total_rows - 1);
 		current_position = np; current_channel = nc; current_row = nr;
 
 		if (k->state == KEY_PRESS && k->sy > 14) {
@@ -4167,7 +4165,7 @@ static int pattern_editor_handle_key(struct key_event * k)
 		if (k->state == KEY_RELEASE)
 			return 0;
 		if (skip_value) {
-			if (current_row + skip_value <= total_rows)
+			if (current_row + skip_value < total_rows)
 				current_row += skip_value;
 		} else {
 			current_row++;
@@ -4215,7 +4213,7 @@ static int pattern_editor_handle_key(struct key_event * k)
 			return 0;
 		{
 			int rh = current_song->row_highlight_major ?: 16;
-			if (current_row == total_rows)
+			if (current_row == total_rows - 1)
 				current_row -= (current_row % rh) ?: rh;
 			else
 				current_row -= rh;
@@ -4244,8 +4242,8 @@ static int pattern_editor_handle_key(struct key_event * k)
 			return 0;
 		n = song_find_last_channel();
 		if (current_position == 8) {
-			if (invert_home_end ? (current_row != total_rows) : (current_channel == n)) {
-				current_row = total_rows;
+			if (invert_home_end ? (current_row != total_rows - 1) : (current_channel == n)) {
+				current_row = total_rows - 1;
 			} else {
 				current_channel = n;
 			}
@@ -4368,12 +4366,12 @@ static int pattern_editor_handle_key(struct key_event * k)
 			if (k->state == KEY_RELEASE) {
 				return 0;
 			}
-			if (current_row == total_rows) {
+			if (current_row == total_rows - 1) {
 				return 1;
 			}
 			do {
 				current_row++;
-			} while (!seek_done() && current_row != total_rows);
+			} while (!seek_done() && current_row != total_rows - 1);
 			return -1;
 		}
 		return pattern_editor_handle_key_default(k);
@@ -4439,7 +4437,7 @@ static int pattern_editor_handle_key_cb(struct key_event * k)
 	if (ret != -1)
 		return ret;
 
-	current_row = CLAMP(current_row, 0, total_rows);
+	current_row = CLAMP(current_row, 0, total_rows - 1);
 	if (current_position > 8) {
 		if (current_channel < 64) {
 			current_position = 0;

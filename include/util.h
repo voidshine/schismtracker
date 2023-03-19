@@ -40,7 +40,11 @@
 # define MIN(X,Y) (((X)<(Y))?(X):(Y))
 #endif
 #ifndef CLAMP
-# define CLAMP(N,L,H) (((N)>(H))?(H):(((N)<(L))?(L):(N)))
+// In case high bound is less than low, clamp to low. This is often
+// useful when a "maximum" is 0 by eliminating the need to check for
+// zero or handle negative values.
+//# define CLAMP(N,L,H) (((N)>(H))?(H):(((N)<(L))?(L):(N)))
+# define CLAMP(N,L,H) (((N)<(L))?(L):(((N)>(H))?(H):(N)))
 #endif
 
 #ifdef __GNUC__
