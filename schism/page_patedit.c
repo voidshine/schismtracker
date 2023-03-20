@@ -4154,39 +4154,25 @@ static int pattern_editor_handle_key(struct key_event * k)
 	}
 
 	switch (k->sym.sym) {
-#if VOIDSHINE
-	case SDLK_k:
-#endif
 	case SDLK_UP:
 		if (k->state == KEY_RELEASE)
 			return 0;
-#if VOIDSHINE
-		current_row -= (skip_value ?: 1);
-#else
 		if (skip_value) {
 			if (current_row - skip_value >= 0)
 				current_row -= skip_value;
 		} else {
 			current_row--;
 		}
-#endif
 		return -1;
-#if VOIDSHINE
-	case SDLK_j:
-#endif
 	case SDLK_DOWN:
 		if (k->state == KEY_RELEASE)
 			return 0;
-#if VOIDSHINE
-		current_row += (skip_value ?: 1);
-#else
 		if (skip_value) {
 			if (current_row + skip_value < total_rows)
 				current_row += skip_value;
 		} else {
 			current_row++;
 		}
-#endif
 		return -1;
 	case SDLK_LEFT:
 		if (k->state == KEY_RELEASE)
@@ -4226,15 +4212,19 @@ static int pattern_editor_handle_key(struct key_event * k)
 
 		return -1;
 	case SDLK_PAGEUP:
-		if (k->state == KEY_RELEASE)
+		if (k->state == KEY_RELEASE) {
 			return 0;
-		{
-			int rh = current_song->row_highlight_major ?: 16;
-			if (current_row == total_rows - 1)
-				current_row -= (current_row % rh) ?: rh;
-			else
-				current_row -= rh;
 		}
+		int rh = current_song->row_highlight_major ?: 16;
+#if VOIDSHINE
+		current_row -= rh;
+#else
+		if (current_row == total_rows - 1) {
+			current_row -= (current_row % rh) ?: rh;
+		} else {
+			current_row -= rh;
+		}
+#endif
 		return -1;
 	case SDLK_PAGEDOWN:
 		if (k->state == KEY_RELEASE)
@@ -4356,6 +4346,18 @@ static int pattern_editor_handle_key(struct key_event * k)
 			template_mode = TEMPLATE_OFF;
 		return 1;
 #if VOIDSHINE
+	case SDLK_j:
+		if (k->state == KEY_RELEASE) {
+			return 0;
+		}
+		current_row += (skip_value ?: 1);
+		return -1;
+	case SDLK_k:
+		if (k->state == KEY_RELEASE) {
+			return 0;
+		}
+		current_row -= (skip_value ?: 1);
+		return -1;
 	case SDLK_h:
 		if (k->state == KEY_RELEASE) {
 			return 0;
