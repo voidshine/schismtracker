@@ -34,9 +34,18 @@
 /* --------------------------------------------------------------------- */
 
 #if VOIDSHINE
+// 4x3 note name system that corresponds to Chromatic Button Accordion.
+// The names start with a consonant indicating the row (4) and end with
+// a vowel indicating the column (3). The names are chosen to be easy
+// to pronounce and distinguish. Sequences can be spoken rapidly to
+// sound like words that are easy to say and remember. Each one is
+// easy to distinguish from the others when reading or hearing.
+// Note Ka = A and La = C so these are ordered alphabetically, which
+// helps when first learning the order: KaKiKuLaLiLuNaNiNuSaSiSu.
+// {K, L, N, S} x {a, i, u}
 static const char *note_names_up[12] = {
-	"Ta", "Ti", "Tu", "Na", "Ni", "Nu",
-	"Ka", "Ki", "Ku", "Sa", "Si", "Su",
+	"La", "Li", "Lu", "Na", "Ni", "Nu",
+	"Sa", "Si", "Su", "Ka", "Ki", "Ku",
 };
 #else
 static const char *note_names_up[12] = {
