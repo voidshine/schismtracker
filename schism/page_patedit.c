@@ -2348,10 +2348,8 @@ static void pattern_editor_reposition(void)
 
 static void advance_cursor(int next_row, int multichannel)
 {
-	int total_rows;
-
 	if (next_row && !((song_get_mode() & (MODE_PLAYING|MODE_PATTERN_LOOP)) && playback_tracing)) {
-		total_rows = song_get_rows_in_pattern(current_pattern);
+		int total_rows = song_get_rows_in_pattern(current_pattern);
 
 		if (skip_value) {
 #if VOIDSHINE
@@ -4156,6 +4154,9 @@ static int pattern_editor_handle_key(struct key_event * k)
 	}
 
 	switch (k->sym.sym) {
+#if VOIDSHINE
+	case SDLK_k:
+#endif
 	case SDLK_UP:
 		if (k->state == KEY_RELEASE)
 			return 0;
@@ -4170,6 +4171,9 @@ static int pattern_editor_handle_key(struct key_event * k)
 		}
 #endif
 		return -1;
+#if VOIDSHINE
+	case SDLK_j:
+#endif
 	case SDLK_DOWN:
 		if (k->state == KEY_RELEASE)
 			return 0;
@@ -4351,7 +4355,60 @@ static int pattern_editor_handle_key(struct key_event * k)
 		if (template_mode != TEMPLATE_NOTES_ONLY)
 			template_mode = TEMPLATE_OFF;
 		return 1;
+#if VOIDSHINE
+	case SDLK_h:
+		if (k->state == KEY_RELEASE) {
+			return 0;
+		}
+		if (k->mod & KMOD_SHIFT) {
+			int round_down[9] = { 0, 0, 2, 2, 4, 4, 6, 6, 7, };
+			current_position = round_down[(current_position - 1 + 9) % 9];
+		} else {
+			current_channel--;
+		}
+		return -1;
 	case SDLK_l:
+		if (k->state == KEY_RELEASE) {
+			return 0;
+		}
+		if (k->mod & KMOD_SHIFT) {
+			int round_up[9] = { 0, 2, 2, 4, 4, 6, 6, 7, 0, };
+			current_position = round_up[(current_position + 1) % 9];
+		} else {
+			current_channel++;
+		}
+		return -1;
+	case SDLK_y:
+		if (status.flags & CLASSIC_MODE) return 0;
+		if (k->state == KEY_RELEASE)
+			return 1;
+		clipboard_copy(1);
+		break;
+	case SDLK_o:
+		if (k->state == KEY_RELEASE)
+			return 1;
+		if (status.last_keysym.sym == SDLK_o) {
+			clipboard_paste_overwrite(0, 1);
+		} else {
+			clipboard_paste_overwrite(0, 0);
+		}
+		break;
+	case SDLK_p:
+		if (k->state == KEY_RELEASE)
+			return 1;
+		clipboard_paste_insert();
+		break;
+#else
+	case SDLK_l:
+		if (k->mod & KMOD_SHIFT) {
+			if (status.flags & CLASSIC_MODE) return 0;
+			if (k->state == KEY_RELEASE)
+				return 1;
+			clipboard_copy(1);
+			break;
+		}
+		return pattern_editor_handle_key_default(k);
+#endif
 		if (k->mod & KMOD_SHIFT) {
 			if (status.flags & CLASSIC_MODE) return 0;
 			if (k->state == KEY_RELEASE)
