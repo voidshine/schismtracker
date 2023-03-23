@@ -112,6 +112,7 @@ void draw_note_13(int x, int y, const song_note_t *note, int cursor_pos, int fg,
 		draw_text(note_text + 10, x + 10, y, 0, 3);
 	} else if (cursor_pos >= 0) {
 		cursor_pos = cursor_pos_map[cursor_pos];
+		//draw_char(note_text[cursor_pos], x + cursor_pos, y, 0, 3);
 		draw_char(note_text[cursor_pos], x + cursor_pos, y, 0, 3);
 	}
 }

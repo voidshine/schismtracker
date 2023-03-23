@@ -64,6 +64,13 @@ enum {
 };
 static int template_mode = TEMPLATE_OFF;
 
+enum {
+	EDIT_NORMAL = 0,
+	EDIT_NAVIGATION,
+	EDIT_MODE_COUNT,
+};
+static int edit_mode = EDIT_NORMAL;
+
 static const char *template_mode_names[] = {
 	"",
 	"Template, Overwrite",
@@ -3446,6 +3453,15 @@ static int pattern_editor_handle_alt_key(struct key_event * k)
 	}
 
 	switch (k->sym.sym) {
+
+	case SDLK_SEMICOLON:
+		if (k->state == KEY_RELEASE) {
+			return 1;
+		}
+		edit_mode = (edit_mode + 1) % EDIT_MODE_COUNT;
+		status_text_flash("Edit mode %d", edit_mode);
+		break;
+
 	case SDLK_RETURN:
 		if (k->state == KEY_PRESS)
 			return 1;
@@ -3950,7 +3966,7 @@ static int pattern_editor_handle_ctrl_key(struct key_event * k)
 }
 
 static int mute_toggle_hack[64]; /* mrsbrisby: please explain this one, i don't get why it's necessary... */
-static int pattern_editor_handle_key_default(struct key_event * k)
+static int pattern_editor_handle_key_default(struct key_event* k)
 {
 	if (k->is_synthetic)
 		return 1;
@@ -4353,6 +4369,9 @@ static int pattern_editor_handle_key(struct key_event * k)
 		return 1;
 #if VOIDSHINE
 	case SDLK_j: {
+		if (edit_mode != EDIT_NAVIGATION) {
+			return pattern_editor_handle_key_default(k);
+		}
 		if (k->state == KEY_RELEASE) {
 			return 0;
 		}
@@ -4361,6 +4380,9 @@ static int pattern_editor_handle_key(struct key_event * k)
 		return -1;
 	}
 	case SDLK_k: {
+		if (edit_mode != EDIT_NAVIGATION) {
+			return pattern_editor_handle_key_default(k);
+		}
 		if (k->state == KEY_RELEASE) {
 			return 0;
 		}
@@ -4369,6 +4391,9 @@ static int pattern_editor_handle_key(struct key_event * k)
 		return -1;
 	}
 	case SDLK_h:
+		if (edit_mode != EDIT_NAVIGATION) {
+			return pattern_editor_handle_key_default(k);
+		}
 		if (k->state == KEY_RELEASE) {
 			return 0;
 		}
@@ -4380,6 +4405,9 @@ static int pattern_editor_handle_key(struct key_event * k)
 		}
 		return -1;
 	case SDLK_l:
+		if (edit_mode != EDIT_NAVIGATION) {
+			return pattern_editor_handle_key_default(k);
+		}
 		if (k->state == KEY_RELEASE) {
 			return 0;
 		}
@@ -4391,12 +4419,18 @@ static int pattern_editor_handle_key(struct key_event * k)
 		}
 		return -1;
 	case SDLK_y:
+		if (edit_mode != EDIT_NAVIGATION) {
+			return pattern_editor_handle_key_default(k);
+		}
 		if (status.flags & CLASSIC_MODE) return 0;
 		if (k->state == KEY_RELEASE)
 			return 1;
 		clipboard_copy(1);
 		break;
 	case SDLK_o:
+		if (edit_mode != EDIT_NAVIGATION) {
+			return pattern_editor_handle_key_default(k);
+		}
 		if (k->state == KEY_RELEASE)
 			return 1;
 		if (status.last_keysym.sym == SDLK_o) {
@@ -4406,6 +4440,9 @@ static int pattern_editor_handle_key(struct key_event * k)
 		}
 		break;
 	case SDLK_p:
+		if (edit_mode != EDIT_NAVIGATION) {
+			return pattern_editor_handle_key_default(k);
+		}
 		if (k->state == KEY_RELEASE)
 			return 1;
 		clipboard_paste_insert();
