@@ -29,11 +29,7 @@
 # include <config.h>
 #endif
 
-// Define this to build with voidshine hacks:
-//   - Chromatic keyboard note mapping
-//   - Note name system (TNKS)x(aiu) = Ta Ti Tu Na Ni Nu Ka Ki Ku Sa Si Su
-//   - Navigation mode and many modifier-free keybindings
-//   - Arrow keys move one line or column at a time regardless of skip value
+// Define this to build with voidshine hacks (see docs/voidshine_hacks.md)
 #define VOIDSHINE 1
 
 /* Some stuff was conditionally included only for files that need it, but really it's not like defining

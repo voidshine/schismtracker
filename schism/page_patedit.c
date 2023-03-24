@@ -4374,22 +4374,24 @@ static int pattern_editor_handle_key(struct key_event * k)
 		if (k->state == KEY_RELEASE)
 			return 1;
 		if (SELECTION_EXISTS) {
-			if ((selection.first_channel == current_channel &&
-			    selection.first_row == current_row) ||
-				(selection.last_channel == current_channel &&
-			    selection.last_row == current_row)) {
+			if ((current_channel == selection.first_channel ||
+			    current_channel == selection.last_channel) &&
+			    (current_row == selection.first_row ||
+				current_row == selection.last_row)) {
 				// No selection
 				selection.first_channel = 0;
 			} else {
 				// Simple way to give preference to moving nearest edge.
-				if (abs(selection.last_channel - current_channel) +
-				    abs(selection.last_row - current_row) <
-					abs(selection.first_channel - current_channel) +
-					abs(selection.first_row - current_row)) {
+				if (abs(selection.last_channel - current_channel) <
+					abs(selection.first_channel - current_channel)) {
 					selection.last_channel = current_channel;
-					selection.last_row = current_row;
 				} else {
 					selection.first_channel = current_channel;
+				}
+				if (abs(selection.last_row - current_row) <
+					abs(selection.first_row - current_row)) {
+					selection.last_row = current_row;
+				} else {
 					selection.first_row = current_row;
 				}
 			}
