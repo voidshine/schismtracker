@@ -3454,14 +3454,6 @@ static int pattern_editor_handle_alt_key(struct key_event * k)
 
 	switch (k->sym.sym) {
 
-	case SDLK_SEMICOLON:
-		if (k->state == KEY_RELEASE) {
-			return 1;
-		}
-		edit_mode = (edit_mode + 1) % EDIT_MODE_COUNT;
-		status_text_flash("Edit mode %d", edit_mode);
-		break;
-
 	case SDLK_RETURN:
 		if (k->state == KEY_PRESS)
 			return 1;
@@ -4368,6 +4360,50 @@ static int pattern_editor_handle_key(struct key_event * k)
 			template_mode = TEMPLATE_OFF;
 		return 1;
 #if VOIDSHINE
+	case SDLK_SEMICOLON:
+		if (k->state == KEY_RELEASE) {
+			return 1;
+		}
+		edit_mode = (edit_mode + 1) % EDIT_MODE_COUNT;
+		status_text_flash("Edit mode %d", edit_mode);
+		break;
+	case SDLK_v: {
+		if (edit_mode != EDIT_NAVIGATION) {
+			return pattern_editor_handle_key_default(k);
+		}
+		if (k->state == KEY_RELEASE)
+			return 1;
+		if (SELECTION_EXISTS) {
+			if ((selection.first_channel == current_channel &&
+			    selection.first_row == current_row) ||
+				(selection.last_channel == current_channel &&
+			    selection.last_row == current_row)) {
+				// No selection
+				selection.first_channel = 0;
+			} else {
+				// Simple way to give preference to moving nearest edge.
+				if (abs(selection.last_channel - current_channel) +
+				    abs(selection.last_row - current_row) <
+					abs(selection.first_channel - current_channel) +
+					abs(selection.first_row - current_row)) {
+					selection.last_channel = current_channel;
+					selection.last_row = current_row;
+				} else {
+					selection.first_channel = current_channel;
+					selection.first_row = current_row;
+				}
+			}
+		} else {
+			// Start selection.
+			selection.last_channel = current_channel;
+			selection.last_row = current_row;
+			selection.first_channel = current_channel;
+			selection.first_row = current_row;
+		}
+		normalise_block_selection();
+		break;
+	}
+
 	case SDLK_j: {
 		if (edit_mode != EDIT_NAVIGATION) {
 			return pattern_editor_handle_key_default(k);
