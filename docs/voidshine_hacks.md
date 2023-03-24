@@ -4,9 +4,13 @@
 
 ## Chromatic MIDI keyboard note mapping
 
+## General workflow keys
+- Space plays; Shift+Space stops; Ctrl+Space sets playback start mark
+
 ## Navigation mode and many modifier-free keybindings
 - `;` toggles edit mode between normal and navigation modes.
 - Arrow keys move one line or column at a time regardless of skip value
+- `'` jumps to selection beginning (or end if shift is pressed)
 
 ### Selection
 - In navigation mode, `v` controls "visual" selection.

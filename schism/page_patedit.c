@@ -3782,6 +3782,13 @@ static int pattern_editor_handle_ctrl_key(struct key_event * k)
 
 
 	switch (k->sym.sym) {
+#if VOIDSHINE
+	case SDLK_SPACE:
+		if (k->state == KEY_RELEASE)
+			return 1;
+		set_playback_mark();
+		return -1;
+#endif
 	case SDLK_LEFT:
 		if (k->state == KEY_RELEASE)
 			return 1;
@@ -4360,6 +4367,16 @@ static int pattern_editor_handle_key(struct key_event * k)
 			template_mode = TEMPLATE_OFF;
 		return 1;
 #if VOIDSHINE
+	// Note, this overrides insertion.
+	case SDLK_SPACE:
+		if (k->state == KEY_RELEASE)
+			return 1;
+		if (k->mod & KMOD_SHIFT) {
+			song_stop();
+		} else {
+			play_song_from_mark();
+		}
+		return 1;
 	case SDLK_SEMICOLON:
 		if (k->state == KEY_RELEASE) {
 			return 1;
@@ -4484,6 +4501,24 @@ static int pattern_editor_handle_key(struct key_event * k)
 		if (k->state == KEY_RELEASE)
 			return 1;
 		clipboard_paste_insert();
+		break;
+	case SDLK_QUOTE: // Single quote (')
+		if (edit_mode != EDIT_NAVIGATION) {
+			return pattern_editor_handle_key_default(k);
+		}
+		if (k->state == KEY_RELEASE) {
+			return 1;
+		}
+		if (SELECTION_EXISTS) {
+			if (k->mod & KMOD_SHIFT) {
+				current_channel = selection.last_channel;
+				current_row = selection.last_row;
+			} else {
+				current_channel = selection.first_channel;
+				current_row = selection.first_row;
+			}
+			return -1;
+		}
 		break;
 #else
 	case SDLK_l:
