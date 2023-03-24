@@ -39,7 +39,11 @@ int fmt_raw_load_sample(const uint8_t *data, size_t length, song_sample_t *smp)
 	smp->volume = 64 * 4;
 	smp->global_volume = 64;
 	smp->length = length;
-	csf_read_sample(smp, SF_LE | SF_8 | SF_PCMU | SF_M, data, length);
+	
+	// TODO: Consider using an option or heuristic to decide whether
+	//  to load signed or unsigned.
+	//csf_read_sample(smp, SF_LE | SF_8 | SF_PCMU | SF_M, data, length);
+	csf_read_sample(smp, SF_LE | SF_8 | SF_PCMS | SF_M, data, length);
 
 	return 1;
 }
