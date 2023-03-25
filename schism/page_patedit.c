@@ -69,7 +69,7 @@ enum {
 	EDIT_NAVIGATION,
 	EDIT_MODE_COUNT,
 };
-static int edit_mode = EDIT_NORMAL;
+static int edit_mode = EDIT_NAVIGATION;
 
 static const char *template_mode_names[] = {
 	"",
@@ -4373,6 +4373,8 @@ static int pattern_editor_handle_key(struct key_event * k)
 			return 1;
 		if (k->mod & KMOD_SHIFT) {
 			song_stop();
+		} else if (SELECTION_EXISTS) {
+			song_start_at_pattern(current_pattern, selection.first_row);
 		} else {
 			play_song_from_mark();
 		}
@@ -4384,6 +4386,17 @@ static int pattern_editor_handle_key(struct key_event * k)
 		edit_mode = (edit_mode + 1) % EDIT_MODE_COUNT;
 		status_text_flash("Edit mode %d", edit_mode);
 		break;
+	case SDLK_w: {
+		for (int i = current_row; i < total_rows; i++) {
+			song_note_t* note = csf_note_at(current_song, current_pattern, current_channel, i);
+			if (note->note) {
+				current_row = i;
+				break;
+			}
+		}
+		status_text_flash("current_row %d", current_row);
+		break;
+	}
 	case SDLK_v: {
 		if (edit_mode != EDIT_NAVIGATION) {
 			return pattern_editor_handle_key_default(k);

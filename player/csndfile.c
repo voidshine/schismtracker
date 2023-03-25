@@ -414,6 +414,10 @@ void csf_copy_midi_cfg(song_t *dest, song_t *src)
 	memcpy(&dest->midi_config, &src->midi_config, sizeof(midi_config_t));
 }
 
+song_note_t* csf_note_at(song_t* csf, int pattern, int channel, int row) {
+	// Since channel is 1-based we must subtract 1.
+	return csf->patterns[pattern] + (MAX_CHANNELS * row) + (channel - 1);
+}
 
 int csf_set_wave_config(song_t *csf, uint32_t rate,uint32_t bits,uint32_t channels)
 {

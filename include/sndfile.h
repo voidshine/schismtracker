@@ -648,7 +648,7 @@ int csf_first_blank_instrument(song_t *csf, int start);
 
 int csf_get_highest_used_channel(song_t *csf);
 
-
+song_note_t* csf_note_at(song_t* csf, int pattern, int channel, int row);
 
 int csf_set_wave_config(song_t *csf, uint32_t rate, uint32_t bits, uint32_t channels);
 
