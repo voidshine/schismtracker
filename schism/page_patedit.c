@@ -1029,6 +1029,53 @@ static int current_effect(void)
 	return cur_note->effect;
 }
 
+static int seek_next_note_row(int row, int step) {
+	int total_rows = song_get_pattern(current_pattern, NULL);
+	if (csf_note_at(current_song, current_pattern, current_channel, row)->note) {
+		// Note under cursor here; proceed until none.
+		for (int i = row + step; i < total_rows && i >= 0; i += step) {
+			song_note_t* note = csf_note_at(current_song, current_pattern, current_channel, i);
+			if (!note->note) {
+				row = i;
+				break;
+			}
+		}
+	}
+	// Proceed until a note is found.
+	for (int i = row; i < total_rows && i >= 0; i += step) {
+		song_note_t* note = csf_note_at(current_song, current_pattern, current_channel, i);
+		if (note->note) {
+			row = i;
+			break;
+		}
+	}
+	return row;
+}
+
+static int seek_next_empty_row(int row, int step) {
+	int total_rows = song_get_pattern(current_pattern, NULL);
+	if (csf_note_is_empty(csf_note_at(current_song, current_pattern, current_channel, row))) {
+		// Empty under cursor here; proceed until nonempty.
+		for (int i = row + step; i < total_rows && i >= 0; i += step) {
+			song_note_t* note = csf_note_at(current_song, current_pattern, current_channel, i);
+			if (!csf_note_is_empty(note)) {
+				row = i;
+				break;
+			}
+		}
+	}
+	// Proceed until an empty row is found.
+	for (int i = row; i < total_rows && i >= 0; i += step) {
+		song_note_t* note = csf_note_at(current_song, current_pattern, current_channel, i);
+		if (csf_note_is_empty(note)) {
+			row = i;
+			break;
+		}
+	}
+	return row;
+}
+
+
 /* --------------------------------------------------------------------------------------------------------- */
 /* settings */
 
@@ -4390,48 +4437,14 @@ static int pattern_editor_handle_key(struct key_event * k)
 		if (k->state == KEY_RELEASE) {
 			return 1;
 		}
-		if (csf_note_at(current_song, current_pattern, current_channel, current_row)->note) {
-			// Note under cursor here; proceed until none.
-			for (int i = current_row + 1; i < total_rows; i++) {
-				song_note_t* note = csf_note_at(current_song, current_pattern, current_channel, i);
-				if (!note->note) {
-					current_row = i;
-					break;
-				}
-			}
-		}
-		// Proceed until a note is found.
-		for (int i = current_row; i < total_rows; i++) {
-			song_note_t* note = csf_note_at(current_song, current_pattern, current_channel, i);
-			if (note->note) {
-				current_row = i;
-				break;
-			}
-		}
+		current_row = seek_next_note_row(current_row, k->mod & KMOD_SHIFT ? -1 : 1);
 		break;
 	}
 	case SDLK_e: {
 		if (k->state == KEY_RELEASE) {
 			return 1;
 		}
-		if (csf_note_is_empty(csf_note_at(current_song, current_pattern, current_channel, current_row))) {
-			// Empty under cursor here; proceed until nonempty.
-			for (int i = current_row + 1; i < total_rows; i++) {
-				song_note_t* note = csf_note_at(current_song, current_pattern, current_channel, i);
-				if (!csf_note_is_empty(note)) {
-					current_row = i;
-					break;
-				}
-			}
-		}
-		// Proceed until an empty row is found.
-		for (int i = current_row; i < total_rows; i++) {
-			song_note_t* note = csf_note_at(current_song, current_pattern, current_channel, i);
-			if (csf_note_is_empty(note)) {
-				current_row = i;
-				break;
-			}
-		}
+		current_row = seek_next_empty_row(current_row, k->mod & KMOD_SHIFT ? -1 : 1);
 		break;
 	}
 	case SDLK_v: {
