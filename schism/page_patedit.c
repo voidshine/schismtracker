@@ -706,6 +706,7 @@ static void pattern_selection_system_copyout(void)
 		}
 		len += 2;
 	}
+	// TODO: Looks like this is leaking?
 	str = mem_alloc(len+1);
 	/* the OpenMPT/ModPlug header says:
 		ModPlug Tracker S3M\x0d\x0a
@@ -4420,9 +4421,12 @@ static int pattern_editor_handle_key(struct key_event * k)
 			return 1;
 		if (k->mod & KMOD_SHIFT) {
 			song_stop();
+		} else if (marked_pattern != -1) {
+			play_song_from_mark();
 		} else if (SELECTION_EXISTS) {
 			song_start_at_pattern(current_pattern, selection.first_row);
 		} else {
+			// Would've played from mark above if set; but can still fall through to order here.
 			play_song_from_mark();
 		}
 		return 1;
