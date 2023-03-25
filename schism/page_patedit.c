@@ -1030,6 +1030,7 @@ static int current_effect(void)
 }
 
 static int seek_next_note_row(int row, int step) {
+	int start = row;
 	int total_rows = song_get_pattern(current_pattern, NULL);
 	if (csf_note_at(current_song, current_pattern, current_channel, row)->note) {
 		// Note under cursor here; proceed until none.
@@ -1045,14 +1046,14 @@ static int seek_next_note_row(int row, int step) {
 	for (int i = row; i < total_rows && i >= 0; i += step) {
 		song_note_t* note = csf_note_at(current_song, current_pattern, current_channel, i);
 		if (note->note) {
-			row = i;
-			break;
+			return i;
 		}
 	}
-	return row;
+	return start;
 }
 
 static int seek_next_empty_row(int row, int step) {
+	int start = row;
 	int total_rows = song_get_pattern(current_pattern, NULL);
 	if (csf_note_is_empty(csf_note_at(current_song, current_pattern, current_channel, row))) {
 		// Empty under cursor here; proceed until nonempty.
@@ -1068,11 +1069,10 @@ static int seek_next_empty_row(int row, int step) {
 	for (int i = row; i < total_rows && i >= 0; i += step) {
 		song_note_t* note = csf_note_at(current_song, current_pattern, current_channel, i);
 		if (csf_note_is_empty(note)) {
-			row = i;
-			break;
+			return i;
 		}
 	}
-	return row;
+	return start;
 }
 
 
@@ -4434,18 +4434,24 @@ static int pattern_editor_handle_key(struct key_event * k)
 		status_text_flash("Edit mode %d", edit_mode);
 		break;
 	case SDLK_w: {
+		if (edit_mode != EDIT_NAVIGATION) {
+			return pattern_editor_handle_key_default(k);
+		}
 		if (k->state == KEY_RELEASE) {
 			return 1;
 		}
 		current_row = seek_next_note_row(current_row, k->mod & KMOD_SHIFT ? -1 : 1);
-		break;
+		return -1;
 	}
 	case SDLK_e: {
+		if (edit_mode != EDIT_NAVIGATION) {
+			return pattern_editor_handle_key_default(k);
+		}
 		if (k->state == KEY_RELEASE) {
 			return 1;
 		}
 		current_row = seek_next_empty_row(current_row, k->mod & KMOD_SHIFT ? -1 : 1);
-		break;
+		return -1;
 	}
 	case SDLK_v: {
 		if (edit_mode != EDIT_NAVIGATION) {
@@ -4540,7 +4546,6 @@ static int pattern_editor_handle_key(struct key_event * k)
 		if (edit_mode != EDIT_NAVIGATION) {
 			return pattern_editor_handle_key_default(k);
 		}
-		if (status.flags & CLASSIC_MODE) return 0;
 		if (k->state == KEY_RELEASE)
 			return 1;
 		clipboard_copy(1);
