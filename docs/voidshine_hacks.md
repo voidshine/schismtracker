@@ -11,6 +11,8 @@
 - `;` toggles edit mode between normal and navigation modes.
 - Arrow keys move one line or column at a time regardless of skip value
 - `'` jumps to selection beginning (or end if shift is pressed)
+- `w` jumps to next row *with* a note after first seeking to next row without a note
+- `e` jumps to next row that's fully *empty* after first seeking to next nonempty row
 
 ### Selection
 - In navigation mode, `v` controls "visual" selection.

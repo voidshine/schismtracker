@@ -4408,7 +4408,30 @@ static int pattern_editor_handle_key(struct key_event * k)
 				break;
 			}
 		}
-		status_text_flash("current_row %d", current_row);
+		break;
+	}
+	case SDLK_e: {
+		if (k->state == KEY_RELEASE) {
+			return 1;
+		}
+		if (csf_note_is_empty(csf_note_at(current_song, current_pattern, current_channel, current_row))) {
+			// Empty under cursor here; proceed until nonempty.
+			for (int i = current_row + 1; i < total_rows; i++) {
+				song_note_t* note = csf_note_at(current_song, current_pattern, current_channel, i);
+				if (!csf_note_is_empty(note)) {
+					current_row = i;
+					break;
+				}
+			}
+		}
+		// Proceed until an empty row is found.
+		for (int i = current_row; i < total_rows; i++) {
+			song_note_t* note = csf_note_at(current_song, current_pattern, current_channel, i);
+			if (csf_note_is_empty(note)) {
+				current_row = i;
+				break;
+			}
+		}
 		break;
 	}
 	case SDLK_v: {
