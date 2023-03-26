@@ -4555,24 +4555,28 @@ static int pattern_editor_handle_key(struct key_event * k)
 		clipboard_copy(1);
 		break;
 	case SDLK_o:
-		if (edit_mode != EDIT_NAVIGATION) {
-			return pattern_editor_handle_key_default(k);
-		}
-		if (k->state == KEY_RELEASE)
+		if (k->state == KEY_RELEASE) {
 			return 1;
-		if (status.last_keysym.sym == SDLK_o) {
-			clipboard_paste_overwrite(0, 1);
+		}
+		if (edit_mode == EDIT_NAVIGATION) {
+			if (status.last_keysym.sym == SDLK_o) {
+				clipboard_paste_overwrite(0, 1);
+			} else {
+				clipboard_paste_overwrite(0, 0);
+			}
 		} else {
-			clipboard_paste_overwrite(0, 0);
+			kbd_set_current_octave(kbd_get_current_octave() - 1);
 		}
 		break;
 	case SDLK_p:
-		if (edit_mode != EDIT_NAVIGATION) {
-			return pattern_editor_handle_key_default(k);
-		}
-		if (k->state == KEY_RELEASE)
+		if (k->state == KEY_RELEASE) {
 			return 1;
-		clipboard_paste_insert();
+		}
+		if (edit_mode == EDIT_NAVIGATION) {
+			clipboard_paste_insert();
+		} else {
+			kbd_set_current_octave(kbd_get_current_octave() + 1);
+		}
 		break;
 	case SDLK_QUOTE: // Single quote (')
 		if (edit_mode != EDIT_NAVIGATION) {
