@@ -694,6 +694,28 @@ static int handle_key_global(struct key_event * k)
 			break;
 		}
 		return 1;
+#if VOIDSHINE
+	// Note, this overrides the normal IT style repeat insertion.
+	case SDLK_SPACE:
+		if (k->state == KEY_RELEASE) {
+			return 1;
+		}
+		if (k->mod & KMOD_SHIFT) {
+			song_stop();
+		} else if (marked_pattern != -1) {
+			if (marked_pattern == current_pattern) {
+				song_loop_pattern(current_pattern, marked_row);
+			} else {
+				play_song_from_mark();
+			}
+		} else if (SELECTION_EXISTS) {
+			// song_start_at_pattern(current_pattern, selection.first_row);
+			song_loop_pattern(current_pattern, selection.first_row);
+		} else {
+			song_loop_pattern(current_pattern, current_row);
+		}
+		return 1;
+#endif
 	case SDLK_F6:
 		if (k->mod & KMOD_SHIFT) {
 			_mp_finish(NULL);

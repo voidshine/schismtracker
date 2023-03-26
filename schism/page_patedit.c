@@ -4415,21 +4415,6 @@ static int pattern_editor_handle_key(struct key_event * k)
 			template_mode = TEMPLATE_OFF;
 		return 1;
 #if VOIDSHINE
-	// Note, this overrides insertion.
-	case SDLK_SPACE:
-		if (k->state == KEY_RELEASE)
-			return 1;
-		if (k->mod & KMOD_SHIFT) {
-			song_stop();
-		} else if (marked_pattern != -1) {
-			play_song_from_mark();
-		} else if (SELECTION_EXISTS) {
-			song_start_at_pattern(current_pattern, selection.first_row);
-		} else {
-			// Would've played from mark above if set; but can still fall through to order here.
-			play_song_from_mark();
-		}
-		return 1;
 	case SDLK_SEMICOLON:
 		if (k->state == KEY_RELEASE) {
 			return 1;
