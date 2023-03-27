@@ -4420,9 +4420,8 @@ static int pattern_editor_handle_key(struct key_event * k)
 		if (k->state == KEY_RELEASE) {
 			return 1;
 		}
-		if (k->mod & KMOD_SHIFT) {
-			song_stop();
-		} else if (marked_pattern != -1) {
+		// When playing already, stop will be handled in page.c
+		if (marked_pattern != -1) {
 			if (marked_pattern == current_pattern) {
 				song_loop_pattern(current_pattern, marked_row);
 			} else {

@@ -694,6 +694,24 @@ static int handle_key_global(struct key_event * k)
 			break;
 		}
 		return 1;
+#if VOIDSHINE
+	// Note, this overrides the normal IT style repeat insertion.
+	case SDLK_SPACE:
+		if (k->state == KEY_RELEASE) {
+			return 1;
+		}
+		if (song_get_mode() != MODE_STOPPED) {
+			song_stop();
+		} else {
+			if (status.current_page == PAGE_PATTERN_EDITOR) {
+				// Yield to more specialized pattern-edit behavior
+				return 0;
+			}
+			song_loop_pattern(get_current_pattern(), 0);
+		}
+		status.flags |= NEED_UPDATE;
+		return 1;
+#endif
 	case SDLK_F6:
 		if (k->mod & KMOD_SHIFT) {
 			_mp_finish(NULL);
